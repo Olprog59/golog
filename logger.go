@@ -18,6 +18,43 @@ var (
 	success = color("\033[1;32m%s\033[0m")
 )
 
+var timeFormat string
+
+func SetLanguage(language string) {
+	switch language {
+	case "en":
+		timeFormat = "01-02-2006 3:04 PM"
+	case "fr":
+		timeFormat = "02-01-2006 15:04"
+	case "de":
+		timeFormat = "02.01.2006 15:04"
+	case "zh":
+		timeFormat = "2006年01月02日 15:04"
+	case "ja":
+		timeFormat = "2006年01月02日 15:04"
+	case "ru":
+		timeFormat = "02.01.2006 15:04"
+	case "es":
+		timeFormat = "02-01-2006 15:04"
+	case "it":
+		timeFormat = "02-01-2006 15:04"
+	case "ar":
+		timeFormat = "02/01/2006 15:04"
+	default:
+		timeFormat = "2006-01-02 15:04"
+	}
+}
+
+func SetCustomTimeFormat(customFormat string) {
+	timeFormat = customFormat
+}
+
+var includeFileName = false
+
+func EnableFileNameLogging() {
+	includeFileName = true
+}
+
 func getFileAndLine() string {
 	_, file, line, ok := runtime.Caller(4)
 	if !ok {
@@ -26,20 +63,25 @@ func getFileAndLine() string {
 	return file[strings.LastIndex(file, "/")+1:] + ":" + strconv.Itoa(line)
 }
 
-func color(colorString string) func(message, status string, args ...any) string {
-	return func(message, status string, args ...any) string {
+func color(colorString string) func(message, level string, args ...any) string {
+	return func(message, level string, args ...any) string {
 		formattedMessage := fmt.Sprintf(message, args...)
-		timestamp := time.Now().Format("02-01-2006 15:04:05")
+		timestamp := time.Now().Format(timeFormat)
 		fileLine := getFileAndLine()
-		fullMessage := fmt.Sprintf("%s: %s: %s: %s", timestamp, status, fileLine, formattedMessage)
+		var fullMessage string
+		if !includeFileName {
+			fullMessage = fmt.Sprintf("%s: %-7s: %s", timestamp, level, formattedMessage)
+		} else {
+			fullMessage = fmt.Sprintf("%s: %-7s: %-15s: %s", timestamp, level, fileLine, formattedMessage)
+		}
 		msg := fmt.Sprintf(colorString, fullMessage)
 
 		return msg
 	}
 }
 
-func format(colorFn func(message, status string, args ...any) string, message, status string, params ...any) {
-	fmt.Println(colorFn(message, status, params...))
+func format(colorFn func(message, level string, args ...any) string, message, level string, params ...any) {
+	fmt.Println(colorFn(message, level, params...))
 }
 
 func Err(message string, params ...any) {
