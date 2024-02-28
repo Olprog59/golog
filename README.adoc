@@ -32,22 +32,48 @@ func init() {
 
 The library supports the following languages with their respective date and time formats:
 
-* en: "01-02-2006 3:04 PM"
-* fr: "02-01-2006 15:04"
-* de: "02.01.2006 15:04"
-* zh: "2006年01月02日 15:04"
-* ja: "2006年01月02日 15:04"
-* ru: "02.01.2006 15:04"
-* es: "02-01-2006 15:04"
-* it: "02-01-2006 15:04"
-* ar: "02/01/2006 15:04"
-* default: "2006-01-02 15:04"
+* en: "01-02-2006 3:04:05 PM"
+* fr: "02-01-2006 15:04:05"
+* de: "02.01.2006 15:04:05"
+* zh: "2006年01月02日 15:04:05"
+* ja: "2006年01月02日 15:04:05"
+* ru: "02.01.2006 15:04:05"
+* es: "02-01-2006 15:04:05"
+* it: "02-01-2006 15:04:05"
+* ar: "02/01/2006 15:04:05"
+* default: "2006-01-02 15:04:05"
 
 By default, if no language is set, `golog` uses the ISO 8601 format (`YYYY-MM-DD HH:MM`) for timestamps.
 
 === Setting the Language
 
 To set the language for your logs, it is recommended to call the `SetLanguage` function in the `init` function of your program. This ensures that the language setting is applied before any logs are generated. If not set, `golog` will use the default ISO 8601 format.
+
+== Settings time precision
+
+`golog` allows you to set the time precision to either `MILLI`, `MICRO`, or `NANO` using the `SetTimePrecision` function. This feature is particularly useful for applications that require high-precision timestamps.
+
+* MILLI : ".000"
+* MICRO : ".000000"
+* NANO  : ".000000000"
+
+[source,go]
+----
+func init() {
+    golog.SetSecondTimeFormat(golog.MICRO)
+}
+----
+
+== Setting the Separator
+
+`golog` allows you to set the separator between the date and time and the log message using the `SetSeparator` function. This feature is particularly useful for applications that require a custom separator between the date and time and the log message.
+
+[source,go]
+----
+func init() {
+    golog.SetSeparator(" 😂 ")
+}
+----
 
 == Advanced Customization
 
@@ -150,8 +176,11 @@ import (
 )
 
 func init() {
-    golog.SetLanguage("fr")
-    golog.EnableFileNameLogging()
+	golog.SetLanguage("fr")
+	golog.EnableFileNameLogging()
+	golog.SetSecondTimeFormat(golog.MICRO)
+	golog.SetSeparator(" 😂 ")
+	//golog.SetCustomTimeFormat("Mon Jan _2 15:04:05 2006")
 }
 
 func main() {
