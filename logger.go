@@ -13,12 +13,12 @@ import (
 )
 
 var (
-	errColor     = makeColor("\033[41;97m")  // fond rouge, texte blanc
-	warnColor    = makeColor("\033[43;30m")  // fond jaune, texte noir
-	debugColor   = makeColor("\033[44;97m")  // fond bleu, texte blanc
-	infoColor    = makeColor("\033[45;97m")  // fond magenta, texte blanc
-	noticeColor  = makeColor("\033[46;30m")  // fond cyan, texte noir
-	successColor = makeColor("\033[42;30m")  // fond vert, texte noir
+	errColor     = makeColor("\033[1;31m")     // rouge bold
+	warnColor    = makeColor("\033[38;5;208m") // orange 256-color
+	debugColor   = makeColor("\033[1;34m")     // bleu bold
+	infoColor    = makeColor("\033[1;35m")     // magenta bold
+	noticeColor  = makeColor("\033[38;5;30m")  // sarcelle foncé 256-color
+	successColor = makeColor("\033[1;32m")     // vert bold
 )
 
 // mu protects all mutable package-level state.
