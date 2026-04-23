@@ -1,0 +1,40 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - skip: true
+
+changelog:
+  sort: asc
+  use: git
+  filters:
+    exclude:
+      - "^chore:"
+      - "^ci:"
+      - "^docs:"
+      - "^test:"
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: "Nouveautés"
+      regexp: "^feat"
+      order: 0
+    - title: "Corrections"
+      regexp: "^fix"
+      order: 1
+    - title: "Performance & sécurité"
+      regexp: "^(perf|refactor|security)"
+      order: 2
+    - title: "Autres"
+      order: 999
+
+release:
+  github:
+    owner: Olprog59
+    name: golog
+  name_template: "v{{ .Version }}"
+  draft: false
+  prerelease: auto
