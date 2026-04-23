@@ -60,7 +60,7 @@ To set the language for your logs, it is recommended to call the `SetLanguage` f
 [source,go]
 ----
 func init() {
-    golog.SetSecondTimeFormat(golog.MICRO)
+    golog.SetTimePrecision(golog.MICRO)
 }
 ----
 
