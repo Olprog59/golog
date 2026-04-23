@@ -1,4 +1,4 @@
-name: Auto Tag
+name: Auto Tag & Release
 
 on:
   push:
@@ -9,14 +9,15 @@ permissions:
   contents: write
 
 jobs:
-  auto-tag:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Detect keyword and create tag
+      - name: Detect keyword and compute next version
+        id: version
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
 
@@ -28,6 +29,7 @@ jobs:
             BUMP="major"
           else
             echo "Aucun mot-clé [patch|minor|major] trouvé — pas de release."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -46,9 +48,25 @@ jobs:
           esac
 
           NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
-          echo "Création du tag : $NEW_TAG"
+          echo "Nouveau tag : $NEW_TAG"
+          echo "tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag "$NEW_TAG"
           git push origin "$NEW_TAG"
+
+      - uses: actions/setup-go@v6
+        if: steps.version.outputs.skip == 'false'
+        with:
+          go-version-file: go.mod
+          cache: false
+
+      - uses: goreleaser/goreleaser-action@v7
+        if: steps.version.outputs.skip == 'false'
+        with:
+          version: "~> v2"
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
