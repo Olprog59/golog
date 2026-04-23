@@ -13,12 +13,12 @@ import (
 )
 
 var (
-	errColor     = makeColor("\033[1;31m%s\033[0m")
-	warnColor    = makeColor("\033[1;33m%s\033[0m")
-	debugColor   = makeColor("\033[1;34m%s\033[0m")
-	infoColor    = makeColor("\033[1;35m%s\033[0m")
-	noticeColor  = makeColor("\033[1;36m%s\033[0m")
-	successColor = makeColor("\033[1;32m%s\033[0m")
+	errColor     = makeColor("\033[41;97m")  // fond rouge, texte blanc
+	warnColor    = makeColor("\033[43;30m")  // fond jaune, texte noir
+	debugColor   = makeColor("\033[44;97m")  // fond bleu, texte blanc
+	infoColor    = makeColor("\033[45;97m")  // fond magenta, texte blanc
+	noticeColor  = makeColor("\033[46;30m")  // fond cyan, texte noir
+	successColor = makeColor("\033[42;30m")  // fond vert, texte noir
 )
 
 // mu protects all mutable package-level state.
@@ -131,10 +131,10 @@ func getFileAndLine() string {
 	return file[strings.LastIndex(file, "/")+1:] + ":" + strconv.Itoa(line)
 }
 
-// makeColor retourne une colorFunc qui formate un message avec la couleur ANSI donnée.
-// Les paramètres tf et sep (format horaire, séparateur) sont passés par format()
-// pour éviter toute lecture de variables globales dans le chemin critique.
-func makeColor(colorString string) colorFunc {
+// makeColor retourne une colorFunc dont le badge de niveau (uniquement) est coloré
+// avec ansiOpen. Le reste du message s'affiche dans la couleur par défaut du terminal,
+// garantissant la lisibilité quel que soit le fond (sombre ou clair).
+func makeColor(ansiOpen string) colorFunc {
 	return func(message, level, fileLine, tf, sep string, sessionID, userID *string, args ...any) string {
 		formattedMessage := fmt.Sprintf(message, args...)
 		timestamp := time.Now().Format(tf)
@@ -142,7 +142,9 @@ func makeColor(colorString string) colorFunc {
 		var b strings.Builder
 		b.WriteString(timestamp)
 		b.WriteString(sep)
-		fmt.Fprintf(&b, "%-7s", level)
+		b.WriteString(ansiOpen)
+		fmt.Fprintf(&b, " %-7s", level)
+		b.WriteString("\033[0m")
 
 		if fileLine != "" {
 			b.WriteString(sep)
@@ -178,7 +180,7 @@ func makeColor(colorString string) colorFunc {
 		b.WriteString(sep)
 		b.WriteString(formattedMessage)
 
-		return fmt.Sprintf(colorString, b.String())
+		return b.String()
 	}
 }
 
